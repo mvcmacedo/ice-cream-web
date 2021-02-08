@@ -31,12 +31,12 @@ export const Content = styled.div`
 
 export const Reviews = styled.div`
   .review-text {
-    font-size: 0.7rem;
+    font-size: 0.8rem;
     margin: 1%;
   }
   .review-text-default {
-    font-size: 0.9rem;
-    margin: 1%;
+    font-size: 0.7rem;
+    margin: 2%;
   }
 `;
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import moment from 'moment';
 
 import clsx from 'clsx';
@@ -24,6 +24,7 @@ import {
   Star,
   Link as LinkIcon,
   LocationOn,
+  Phone,
 } from '@material-ui/icons';
 
 import Shop from './models/Shop';
@@ -34,12 +35,14 @@ import { Container, Header, Content, Reviews, useStyles } from './style';
 
 function App() {
   const classes = useStyles();
-  const [textInput, setTextInput] = useState('Alpharetta');
-  const [city, setCity] = useState('Alpharetta');
+  const [city, setCity] = useState<string | null>('Alpharetta');
   const [reviews, setReviews] = useState<Review[]>([]);
   const [expandId, setExpandId] = useState(null);
   const [shops, setShops] = useState<Shop[]>([]);
   const [loading, setLoading] = useState(true);
+  const inputText = useRef({
+    value: 'Alpharetta',
+  });
 
   const handleExpandClick = useCallback(
     async (shopId) => {
@@ -63,7 +66,13 @@ function App() {
     [expandId],
   );
 
+  const handleSubmit = useCallback(() => {
+    setCity(inputText.current.value || 'Alpharetta');
+  }, []);
+
   useEffect(() => {
+    setLoading(true);
+
     async function getShops() {
       const shopsResponse = await api.get(`/shops?location=${city}`);
 
@@ -84,8 +93,8 @@ function App() {
         <div className="header-item">
           <TextField
             id="outlined-basic"
-            value={textInput}
-            onChange={(e) => setTextInput(e.target.value)}
+            defaultValue="Alpharetta"
+            inputProps={{ ref: inputText }}
             label="Cidade"
             placeholder="Digite uma cidade"
             variant="outlined"
@@ -93,11 +102,7 @@ function App() {
         </div>
 
         <div className="header-item">
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={() => setCity(textInput)}
-          >
+          <Button variant="contained" color="secondary" onClick={handleSubmit}>
             Buscar
           </Button>
         </div>
@@ -158,6 +163,11 @@ function App() {
                   <LocationOn />
                 </IconButton>
 
+                <IconButton aria-label="phone">
+                  <Phone />
+                </IconButton>
+                <span>{shop.display_phone}</span>
+
                 <IconButton
                   className={clsx(classes.expand, {
                     [classes.expandOpen]: shop.id === expandId,
@@ -172,7 +182,8 @@ function App() {
               {shop.id !== expandId && (
                 <Reviews>
                   <Typography paragraph className="review-text-default">
-                    Clique para exibir as reviews deste estabelecimento.
+                    Clique na seta ao lado para exibir as reviews do
+                    estabelecimento.
                   </Typography>
                 </Reviews>
               )}
